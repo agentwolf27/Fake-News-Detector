@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Fake News Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Enhanced Fake News Detector</h1>
+            <p class="subtitle">Powered by ensemble AI models with uncertainty analysis</p>
+        </header>
+
+        <main>
+            <form method="POST" id="analysisForm">
+                <div class="input-group">
+                    <label for="text">Enter news article or text to analyze:</label>
+                    <textarea 
+                        name="text" 
+                        id="text" 
+                        placeholder="Paste your news article here..."
+                        required
+                        rows="6"
+                    >{{ text if text else '' }}</textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <span class="btn-text">Analyze Text</span>
+                    <span class="btn-loader">🔄</span>
+                </button>
+            </form>
+
+            {% if error %}
+                <div class="alert alert-error">
+                    <span class="alert-icon">⚠️</span>
+                    <span>{{ error }}</span>
+                </div>
+            {% endif %}
+
+            {% if prediction %}
+                <div class="results">
+                    <div class="result-card {{ status_class }}">
+                        <div class="result-header">
+                            <span class="result-icon">{{ status_icon }}</span>
+                            <h2 class="result-title">
+                                {% if prediction == 'FAKE' %}
+                                    Likely Fake News
+                                {% else %}
+                                    Likely Real News
+                                {% endif %}
+                            </h2>
+                            <div class="confidence-badge confidence-{{ confidence_level.lower() }}">
+                                {{ confidence }}% confidence
+                            </div>
+                        </div>
+
+                        <div class="confidence-bar">
+                            <div class="confidence-fill {{ status_class }}" 
+                                 style="width: {{ confidence }}%"></div>
+                            <span class="confidence-text">{{ confidence_level }} Confidence</span>
+                        </div>
+
+                        {% if is_uncertain %}
+                            <div class="alert alert-warning">
+                                <span class="alert-icon">⚠️</span>
+                                <strong>Uncertainty Alert:</strong> {{ uncertainty_message }}
+                            </div>
+                        {% endif %}
+
+                        {% if agreement_message %}
+                            <div class="model-agreement">
+                                <div class="agreement-header">
+                                    <span class="agreement-icon">
+                                        {% if models_agree %}🤝{% else %}⚖️{% endif %}
+                                    </span>
+                                    <span>Model Analysis</span>
+                                </div>
+                                <p>{{ agreement_message }}</p>
+                            </div>
+                        {% endif %}
+
+                        <!-- Detailed Breakdown -->
+                        <div class="detailed-breakdown">
+                            <h3>📊 Detailed Analysis</h3>
+                            
+                            <!-- Ensemble Results -->
+                            <div class="breakdown-section">
+                                <h4>🎯 Ensemble Prediction</h4>
+                                <div class="probability-bars">
+                                    <div class="prob-bar">
+                                        <span class="prob-label">Real</span>
+                                        <div class="prob-container">
+                                            <div class="prob-fill real" style="width: {{ ensemble_real_prob }}%"></div>
+                                            <span class="prob-value">{{ ensemble_real_prob }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="prob-bar">
+                                        <span class="prob-label">Fake</span>
+                                        <div class="prob-container">
+                                            <div class="prob-fill fake" style="width: {{ ensemble_fake_prob }}%"></div>
+                                            <span class="prob-value">{{ ensemble_fake_prob }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Format Model Results -->
+                            <div class="breakdown-section">
+                                <h4>📰 Format Model (Source & Structure)</h4>
+                                <div class="probability-bars">
+                                    <div class="prob-bar">
+                                        <span class="prob-label">Real</span>
+                                        <div class="prob-container">
+                                            <div class="prob-fill real" style="width: {{ format_real_prob }}%"></div>
+                                            <span class="prob-value">{{ format_real_prob }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="prob-bar">
+                                        <span class="prob-label">Fake</span>
+                                        <div class="prob-container">
+                                            <div class="prob-fill fake" style="width: {{ format_fake_prob }}%"></div>
+                                            <span class="prob-value">{{ format_fake_prob }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Content Model Results (if available) -->
+                            {% if content_fake_prob %}
+                                <div class="breakdown-section">
+                                    <h4>📝 Content Model (Writing Quality)</h4>
+                                    <div class="probability-bars">
+                                        <div class="prob-bar">
+                                            <span class="prob-label">Real</span>
+                                            <div class="prob-container">
+                                                <div class="prob-fill real" style="width: {{ content_real_prob }}%"></div>
+                                                <span class="prob-value">{{ content_real_prob }}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="prob-bar">
+                                            <span class="prob-label">Fake</span>
+                                            <div class="prob-container">
+                                                <div class="prob-fill fake" style="width: {{ content_fake_prob }}%"></div>
+                                                <span class="prob-value">{{ content_fake_prob }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-preview">
+                            <h4>Analyzed Text:</h4>
+                            <p>{{ text[:300] }}{% if text|length > 300 %}...{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="features">
+                    <h3>✨ Enhanced Features</h3>
+                    <ul>
+                        <li>🤖 Dual-model ensemble prediction</li>
+                        <li>⚠️ Uncertainty detection & alerts</li>
+                        <li>🎯 Confidence level analysis</li>
+                        <li>📊 Detailed model breakdown</li>
+                        <li>🔍 Real-time analysis</li>
+                    </ul>
+                </div>
+                
+                <div class="api-info">
+                    <h3>🔌 API Endpoints</h3>
+                    <ul>
+                        <li><code>POST /api/predict</code> - Enhanced predictions</li>
+                        <li><code>POST /api/predict/simple</code> - Simple predictions</li>
+                        <li><code>GET /health</code> - Health check</li>
+                        <li><code>GET /api/models</code> - Model information</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <p><strong>Disclaimer:</strong> This tool provides AI-based analysis and should not be the sole basis for determining news authenticity. Always verify information from multiple reliable sources.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Add loading state to form submission
+        document.getElementById('analysisForm').addEventListener('submit', function() {
+            const button = this.querySelector('button[type="submit"]');
+            button.classList.add('loading');
+            
+            setTimeout(() => {
+                button.classList.remove('loading');
+            }, 3000);
+        });
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('text');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Add example texts
+        function addExample(text) {
+            document.getElementById('text').value = text;
+            document.getElementById('text').style.height = 'auto';
+            document.getElementById('text').style.height = (document.getElementById('text').scrollHeight) + 'px';
+        }
+
+        // Add keyboard shortcut for submission
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                document.getElementById('analysisForm').submit();
+            }
+        });
+    </script>
+</body>
+</html> 

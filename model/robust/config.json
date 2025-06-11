@@ -1,0 +1,76 @@
+{
+  "fake_patterns": {
+    "clickbait": [
+      "you won\\'t believe",
+      "this will shock you",
+      "doctors hate",
+      "scientists hate",
+      "one weird trick",
+      "secret revealed",
+      "suppressed by",
+      "they don\\'t want you to know"
+    ],
+    "conspiracy": [
+      "cover[- ]?up",
+      "mainstream media",
+      "wake up",
+      "sheeple",
+      "illuminati",
+      "new world order",
+      "deep state",
+      "globalist",
+      "false flag"
+    ],
+    "medical_scam": [
+      "miracle cure",
+      "doctors can\\'t explain",
+      "big pharma",
+      "natural remedy",
+      "pharmaceutical companies don\\'t want",
+      "cures cancer"
+    ],
+    "financial_scam": [
+      "get rich quick",
+      "make money fast",
+      "work from home",
+      "passive income",
+      "financial freedom",
+      "secret system"
+    ]
+  },
+  "real_patterns": {
+    "professional_sources": [
+      "reuters",
+      "associated press",
+      "ap news",
+      "bbc news",
+      "cnn",
+      "new york times",
+      "washington post",
+      "wall street journal",
+      "bloomberg",
+      "npr",
+      "pbs",
+      "abc news",
+      "nbc news",
+      "cbs news"
+    ],
+    "journalistic_style": [
+      "according to",
+      "sources said",
+      "reported that",
+      "in a statement",
+      "told reporters",
+      "at a press conference",
+      "in an interview"
+    ],
+    "formal_attribution": [
+      "said \\w+, who",
+      "according to \\w+ \\w+",
+      "spokesperson for",
+      "representative of",
+      "official statement"
+    ]
+  },
+  "version": "1.0-robust"
+}

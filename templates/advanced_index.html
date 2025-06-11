@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Advanced Fake News Detector | AI-Powered Truth Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='advanced_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <i class="fas fa-shield-alt"></i>
+                    Advanced Fake News Detector
+                </h1>
+                <p class="subtitle">
+                    AI-Powered Multi-Model Truth Analysis System v2.0
+                </p>
+                <div class="features-badges">
+                    <span class="badge"><i class="fas fa-robot"></i> Ensemble AI</span>
+                    <span class="badge"><i class="fas fa-brain"></i> Sentiment Analysis</span>
+                    <span class="badge"><i class="fas fa-check-circle"></i> Source Validation</span>
+                    <span class="badge"><i class="fas fa-chart-line"></i> Uncertainty Detection</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Analysis Section -->
+        <main class="main-content">
+            <div class="analysis-panel">
+                <div class="input-section">
+                    <label for="newsText" class="input-label">
+                        <i class="fas fa-newspaper"></i>
+                        Enter News Article or Text to Analyze
+                    </label>
+                    <textarea 
+                        id="newsText" 
+                        placeholder="Paste your news article here... (minimum 10 characters for reliable analysis)"
+                        rows="8"
+                    ></textarea>
+                    
+                    <div class="action-buttons">
+                        <button id="analyzeBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Analyze with AI
+                        </button>
+                        <button id="quickTestBtn" class="btn btn-secondary">
+                            <i class="fas fa-flask"></i>
+                            Quick Test
+                        </button>
+                        <button id="clearBtn" class="btn btn-outline">
+                            <i class="fas fa-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Animation -->
+                <div id="loadingSection" class="loading-section hidden">
+                    <div class="loading-spinner"></div>
+                    <p>🤖 Advanced AI models analyzing content...</p>
+                    <div class="loading-steps">
+                        <div class="step active">Text preprocessing</div>
+                        <div class="step">Feature extraction</div>
+                        <div class="step">Ensemble prediction</div>
+                        <div class="step">Confidence analysis</div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="results-section hidden">
+                    <!-- Main Verdict -->
+                    <div class="verdict-card">
+                        <div class="verdict-header">
+                            <div class="verdict-icon" id="verdictIcon"></div>
+                            <div class="verdict-info">
+                                <h2 class="verdict-text" id="verdictText"></h2>
+                                <p class="confidence-text" id="confidenceText"></p>
+                            </div>
+                            <div class="uncertainty-badge hidden" id="uncertaintyBadge">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Uncertain
+                            </div>
+                        </div>
+                        
+                        <div class="probability-bars">
+                            <div class="prob-bar">
+                                <label>Real News Probability</label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill real" id="realProgress"></div>
+                                    <span class="progress-text" id="realPercentage"></span>
+                                </div>
+                            </div>
+                            <div class="prob-bar">
+                                <label>Fake News Probability</label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill fake" id="fakeProgress"></div>
+                                    <span class="progress-text" id="fakePercentage"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Analysis Tabs -->
+                    <div class="analysis-tabs">
+                        <div class="tab-headers">
+                            <button class="tab-btn active" data-tab="models">
+                                <i class="fas fa-cogs"></i> Model Analysis
+                            </button>
+                            <button class="tab-btn" data-tab="features">
+                                <i class="fas fa-chart-bar"></i> Feature Breakdown
+                            </button>
+                            <button class="tab-btn" data-tab="credibility">
+                                <i class="fas fa-shield-check"></i> Credibility Check
+                            </button>
+                            <button class="tab-btn" data-tab="linguistic">
+                                <i class="fas fa-language"></i> Linguistic Analysis
+                            </button>
+                        </div>
+
+                        <!-- Model Analysis Tab -->
+                        <div class="tab-content active" id="modelsTab">
+                            <div class="model-comparison">
+                                <div class="model-card">
+                                    <h4><i class="fas fa-network-wired"></i> Ensemble Model</h4>
+                                    <div class="model-result" id="ensembleResult">
+                                        <span class="model-prediction" id="ensemblePrediction"></span>
+                                        <div class="model-confidence" id="ensembleConfidence"></div>
+                                    </div>
+                                </div>
+                                <div class="model-card">
+                                    <h4><i class="fas fa-layer-group"></i> Feature Model</h4>
+                                    <div class="model-result" id="featureResult">
+                                        <span class="model-prediction" id="featurePrediction"></span>
+                                        <div class="model-confidence" id="featureConfidence"></div>
+                                    </div>
+                                </div>
+                                <div class="model-card">
+                                    <h4><i class="fas fa-ruler"></i> Rule Engine</h4>
+                                    <div class="model-result" id="ruleResult">
+                                        <span class="model-prediction" id="rulePrediction"></span>
+                                        <div class="model-confidence" id="ruleScore"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agreement-indicator" id="agreementIndicator">
+                                <span class="agreement-icon" id="agreementIcon"></span>
+                                <span class="agreement-text" id="agreementText"></span>
+                            </div>
+                        </div>
+
+                        <!-- Feature Breakdown Tab -->
+                        <div class="tab-content" id="featuresTab">
+                            <div class="feature-grid">
+                                <div class="feature-category">
+                                    <h4><i class="fas fa-file-alt"></i> Text Statistics</h4>
+                                    <div class="feature-items" id="textStats"></div>
+                                </div>
+                                <div class="feature-category">
+                                    <h4><i class="fas fa-heart-pulse"></i> Sentiment Analysis</h4>
+                                    <div class="feature-items" id="sentimentAnalysis"></div>
+                                </div>
+                                <div class="feature-category">
+                                    <h4><i class="fas fa-spell-check"></i> Writing Patterns</h4>
+                                    <div class="feature-items" id="writingPatterns"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Credibility Check Tab -->
+                        <div class="tab-content" id="credibilityTab">
+                            <div class="credibility-checks" id="credibilityChecks">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Linguistic Analysis Tab -->
+                        <div class="tab-content" id="linguisticTab">
+                            <div class="linguistic-analysis" id="linguisticAnalysis">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Section -->
+                <div id="errorSection" class="error-section hidden">
+                    <div class="error-card">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Analysis Error</h3>
+                        <p id="errorMessage"></p>
+                        <button id="retryBtn" class="btn btn-primary">
+                            <i class="fas fa-redo"></i>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quick Test Examples -->
+        <section class="examples-section">
+            <h3><i class="fas fa-vial"></i> Quick Test Examples</h3>
+            <div class="examples-grid">
+                <div class="example-card" data-text="WASHINGTON (Reuters) - The Federal Reserve announced new interest rate policies today following economic indicators showing steady growth.">
+                    <h4>🟢 Real News Example</h4>
+                    <p>Professional Reuters report with proper attribution and factual content.</p>
+                </div>
+                <div class="example-card" data-text="SHOCKING! This one weird trick will make you rich overnight! Banks hate this secret method that governments don't want you to know!">
+                    <h4>🔴 Fake News Example</h4>
+                    <p>Clickbait content with sensational claims and fake credibility indicators.</p>
+                </div>
+                <div class="example-card" data-text="Apple Inc. reported quarterly earnings with revenue growth driven by iPhone sales, according to preliminary data.">
+                    <h4>🟡 Neutral Example</h4>
+                    <p>Corporate news without clear source attribution - may trigger uncertainty.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Status -->
+        <footer class="footer">
+            <div class="system-status" id="systemStatus">
+                <div class="status-item">
+                    <i class="fas fa-server"></i>
+                    <span>System Status: <span id="systemHealth">Checking...</span></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-brain"></i>
+                    <span>Models: <span id="modelStatus">Loading...</span></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-code-branch"></i>
+                    <span>Version: 2.0 Advanced</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Advanced JavaScript for Enhanced Functionality -->
+    <script src="{{ url_for('static', filename='advanced_script.js') }}"></script>
+</body>
+</html> 
