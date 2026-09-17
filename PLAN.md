@@ -29,19 +29,19 @@ A short list of concrete, checkable outcomes. If you cannot check it, it does no
 Tick one only when its VERIFY passes, not when someone says it is done.
 Lines marked **[take]** must pass before Vishrut records; **[at take]** is written right after the take.
 
-- [ ] [take] The committed golden bodies re-derive byte for byte from 23207ce, run in isolation — `.venv/bin/python -B scripts/capture_golden.py --check`
-- [ ] [take] Existing API fields and the golden bodies are exactly unchanged on both predict routes — `.venv/bin/python -m unittest tests.test_golden tests.test_api_contract`
-- [ ] [take] Malformed, non-text and oversized requests get a 4xx with a named code and no Python internals — `.venv/bin/python -m unittest tests.test_errors`
-- [ ] [take] The no-signal and coverage rules refuse or admit the pinned probes either side of each edge — `.venv/bin/python -m unittest tests.test_thresholds`
-- [ ] [take] Real inputs reach every named state in whole percents with the complement, with no decimal percent, raw enum, emoji or banned word — `.venv/bin/python -m unittest tests.test_page tests.test_present`
-- [ ] [take] With all four models loaded, each sample shows its claimed state with margin; the dateline sample is the post plus a prefix and moves only the format model — `.venv/bin/python -m unittest tests.test_samples`
-- [ ] [take] No test is skipped and no listed test module is empty — `.venv/bin/python -m unittest tests.test_hygiene`
-- [ ] [take] The four served model files are byte-identical to 23207ce — `git diff --exit-code 23207ce -- model/fake_news_model.pkl model/vectorizer.pkl model/content_model.pkl model/content_vectorizer.pkl`
-- [ ] [take] Every recorded state was looked at in a headed browser at the recorded inner size, on a server started after the last edit, with a clean console and the result card in view — Vishrut and claude look at the rehearsal screenshots
+- [x] [take] The committed golden bodies re-derive byte for byte from 23207ce, run in isolation — `.venv/bin/python -B scripts/capture_golden.py --check`
+- [x] [take] Existing API fields and the golden bodies are exactly unchanged on both predict routes — `.venv/bin/python -m unittest tests.test_golden tests.test_api_contract`
+- [x] [take] Malformed, non-text and oversized requests get a 4xx with a named code and no Python internals — `.venv/bin/python -m unittest tests.test_errors`
+- [x] [take] The no-signal and coverage rules refuse or admit the pinned probes either side of each edge — `.venv/bin/python -m unittest tests.test_thresholds`
+- [x] [take] Real inputs reach every named state in whole percents with the complement, with no decimal percent, raw enum, emoji or banned word — `.venv/bin/python -m unittest tests.test_page tests.test_present`
+- [x] [take] With all four models loaded, each sample shows its claimed state with margin; the dateline sample is the post plus a prefix and moves only the format model — `.venv/bin/python -m unittest tests.test_samples`
+- [x] [take] No test is skipped and no listed test module is empty — `.venv/bin/python -m unittest tests.test_hygiene`
+- [x] [take] The four served model files are byte-identical to 23207ce — `git diff --exit-code 23207ce -- model/fake_news_model.pkl model/vectorizer.pkl model/content_model.pkl model/content_vectorizer.pkl`
+- [~] [take] Every recorded state was looked at in a headed browser at the recorded inner size, on a server started after the last edit, with a clean console and the result card in view — Vishrut and claude look at the rehearsal screenshots
 - [ ] [at take] The pages served during the take are byte-identical to what the current code renders — `.venv/bin/python -m unittest tests.test_rehearsal`
-- [ ] The documented commands serve with the debugger off from any directory and without pandas; two pickles give format-only states, none gives 503 — `.venv/bin/python -m unittest tests.test_run_mode`
-- [ ] Every listed mutant, including no-signal 3.0→2.0 and 3.0→4.0, fails its module — `.venv/bin/python scripts/mutants.py`
-- [ ] A freshly built image turns healthy, runs as non-root, has no pandas and returns the golden numbers — `bash scripts/docker_smoke.sh`
+- [x] The documented commands serve with the debugger off from any directory and without pandas; two pickles give format-only states, none gives 503 — `.venv/bin/python -m unittest tests.test_run_mode`
+- [x] Every listed mutant, including no-signal 3.0→2.0 and 3.0→4.0, fails its module — `.venv/bin/python scripts/mutants.py`
+- [x] A freshly built image turns healthy, runs as non-root, has no pandas and returns the golden numbers — `bash scripts/docker_smoke.sh`
 - [ ] The take was watched against the shot list: no narration implying fact checking or that headlines are refused, no zoom, no overlays — Vishrut watches it
 
 ## Out of scope

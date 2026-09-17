@@ -1,274 +1,160 @@
-# 🔍 Fake News Detector
+# Fake News Detector
 
-A full-stack web application that uses machine learning to detect fake news articles and headlines. Built with Python, Flask, and scikit-learn.
+A Flask service and web page that scores whether a pasted news article's **writing style**
+resembles the fake or the real articles its two models were trained on. It does not check facts.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
-![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![The page, scoring a sensational post with an agency dateline: the two models disagree](docs/screenshot.png)
 
-## 🌟 Features
+- **Format model** — a random forest (100 trees, depth 20, balanced class weights) over 15,000
+  TF-IDF features of one- to three-word phrases, including datelines and agency names.
+- **Content model** — a logistic regression over 12,000 TF-IDF features, reading the text after
+  agency names and datelines (`WASHINGTON (Reuters) -` and similar) are removed.
+- **Blend** — 60 % format, 40 % content. The page shows all three, and says when the models
+  disagree.
 
-- **Real-time Prediction**: Instantly analyze news articles and headlines
-- **Confidence Scoring**: Get probability scores for predictions
-- **Beautiful UI**: Modern, responsive web interface with color-coded results
-- **REST API**: JSON API endpoint for programmatic access
-- **Docker Support**: Easy deployment with containerization
-- **High Accuracy**: TF-IDF + Logistic Regression model with balanced training
-- **Interactive Examples**: Try pre-loaded examples to test the system
+Both models were trained on about 1,600 labelled news articles (Kaggle
+`clmentbisaillon/fake-and-real-news-dataset`); that data is not in this repository.
 
-## 🚀 Quick Start
+## Run it
 
-### Option 1: Run Everything (Recommended)
+Python 3.12 or 3.13.
+
 ```bash
-# Clone and setup
-git clone <repository-url>
-cd fake-news-detector
-pip install -r requirements.txt
-
-# Train model and start web app
-python main.py all
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python app/app.py
 ```
 
-### Option 2: Step by Step
+Or, with the standard tools: `python3.12 -m venv .venv` then `.venv/bin/pip install -r requirements.txt`.
+
+Open <http://127.0.0.1:8080>. The debugger is off; `FLASK_DEBUG=1` turns it on for UI work,
+and `PORT=8090` moves the server. The same server starts with `.venv/bin/python main.py run`, or
+behind gunicorn:
+
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Download real dataset from Kaggle (optional)
-python main.py download
-
-# Train the model
-python model/train_model.py
-
-# Start web application
-python app/app.py
+.venv/bin/gunicorn --bind 127.0.0.1:8080 --workers 2 --preload app.app:app
 ```
 
-### Option 3: Docker
+### Docker
+
 ```bash
-# Build and run with Docker
 docker build -t fake-news-detector .
-docker run -p 5000:5000 fake-news-detector
+docker run --rm -p 8080:8080 fake-news-detector
+curl -fsS localhost:8080/health
 ```
 
-Open your browser to `http://localhost:5000` 🎉
+The image runs gunicorn on port 8080 as a non-root user, carries only the served code and the four
+served model files, and does not train anything.
 
-## 📁 Project Structure
+## What the page does
 
-```
-project/
-├── main.py                 # Main entry point
-├── app/
-│   └── app.py             # Flask web application
-├── model/
-│   ├── train_model.py     # Model training script
-│   ├── fake_news_model.pkl    # Trained model (generated)
-│   └── vectorizer.pkl     # TF-IDF vectorizer (generated)
-├── utils/
-│   └── preprocess.py      # Text preprocessing utilities
-├── templates/
-│   └── index.html         # Web interface template
-├── static/
-│   └── style.css          # Styling and responsive design
-├── data/
-│   └── fake_or_real_news.csv # Training dataset
-├── test_script.py         # Testing and benchmarking
-├── requirements.txt       # Python dependencies
-├── Dockerfile            # Docker configuration
-└── README.md            # This file
-```
+Paste an article, or load one of four texts written for this demo. The result is one of:
 
-## 🤖 How It Works
+| State | When | What it shows |
+|---|---|---|
+| A verdict | Both models read the text | The blended score and each model's score, as whole percents, with a headline from `Too close to call` to `Reads strongly like fake news` / `…real reporting` |
+| **The two models disagree** | One model leans fake (≥ 55 %) and the other leans real (≤ 45 %) | Both scores, which way each leans, and why a split happens |
+| **Too little to go on** | Every model scores the text within 3 points of what it gives an empty text | No score for the text — the models have read nothing that moves them |
+| **Too few words the models know** | Less than half of the text is in each model's vocabulary | No score |
+| **Links aren't opened** | The text is only a link | No score |
 
-### 1. **Data Processing**
-- Combines news headlines and article text
-- Cleans text (removes HTML, URLs, special characters)
-- Removes stopwords and normalizes text
+The rules behind the two refusals, and the texts that pin them, are in `DECISIONS.md` (D2, D3).
+They refuse readings that sit on the models' default answer, not short text as such: most
+one-line headlines are still scored, and most of those lean fake.
 
-### 2. **Feature Extraction**
-- Uses TF-IDF (Term Frequency-Inverse Document Frequency)
-- Extracts 10,000 most important features
-- Includes both unigrams and bigrams
+## API
 
-### 3. **Machine Learning**
-- Logistic Regression classifier with balanced class weights
-- 80/20 train-test split with stratification
-- Achieves high accuracy on validation data
-
-### 4. **Prediction Pipeline**
-- Real-time text preprocessing
-- Feature vectorization
-- Probability calculation with confidence scores
-
-## 🎯 Usage Examples
-
-### Web Interface
-1. Open `http://localhost:5000`
-2. Paste news article or headline
-3. Click "Analyze News"
-4. View prediction with confidence score
-
-### API Usage
-```python
-import requests
-
-response = requests.post('http://localhost:5000/api/predict', 
-                        json={'text': 'Your news article here'})
-result = response.json()
-print(f"Prediction: {result['prediction']} ({result['confidence']}%)")
-```
-
-### CLI Testing
-```bash
-# Test local predictions
-python test_script.py local
-
-# Interactive mode
-python test_script.py interactive
-
-# Performance benchmark
-python test_script.py benchmark
-
-# Test API endpoint
-python test_script.py api
-```
-
-## 📊 Model Performance
-
-Based on the training dataset:
-
-- **Accuracy**: ~85-90% on test set
-- **Features**: 10,000 TF-IDF features
-- **Algorithm**: Logistic Regression with balanced class weights
-- **Preprocessing**: Text cleaning, stopword removal, normalization
-
-### Sample Predictions:
-
-✅ **REAL (92% confidence)**
-> "Scientists at MIT develop new water purification technology using solar energy"
-
-❌ **FAKE (88% confidence)**  
-> "Government plans to replace all birds with surveillance drones"
-
-## 🛠️ Configuration
-
-### Environment Variables
-- `FLASK_ENV`: Set to `development` for debug mode
-- `PORT`: Custom port (default: 5000)
-
-### Model Parameters
-Edit `model/train_model.py` to adjust:
-- `max_features`: Number of TF-IDF features (default: 10,000)
-- `ngram_range`: N-gram range (default: (1,2))
-- `test_size`: Train-test split ratio (default: 0.2)
-
-## 🐳 Docker Deployment
+`POST /api/predict` with `Content-Type: application/json` and `{"text": "…"}`:
 
 ```bash
-# Build image
-docker build -t fake-news-detector .
-
-# Run container
-docker run -d -p 5000:5000 --name fake-news-app fake-news-detector
-
-# View logs
-docker logs fake-news-app
-
-# Stop container
-docker stop fake-news-app
+curl -s -H 'Content-Type: application/json' --data @samples/wire_report.json \
+  localhost:8080/api/predict | python3 -m json.tool
 ```
 
-## 🧪 Testing
-
-Run comprehensive tests:
-```bash
-# All tests
-python test_script.py all
-
-# Specific tests
-python test_script.py local      # Local predictions
-python test_script.py api        # API endpoint
-python test_script.py benchmark  # Performance test
-```
-
-## 📈 API Endpoints
-
-### `POST /api/predict`
-Predict news authenticity
-
-**Request:**
 ```json
 {
-  "text": "Your news article text here"
-}
-```
-
-**Response:**
-```json
-{
-  "text": "Your news article text here...",
   "prediction": "REAL",
-  "confidence": 92.5,
-  "confidence_score": 0.925
+  "confidence": 73.3,
+  "confidence_level": "MEDIUM",
+  "is_uncertain": false,
+  "models_agree": true,
+  "text": "City officials said on Monday that the regional transit authority …",
+  "ensemble_probabilities": {"fake": 26.7, "real": 73.3},
+  "model_breakdown": {
+    "format_model": {"prediction": "REAL", "fake_prob": 31.75, "real_prob": 68.25},
+    "content_model": {"prediction": "REAL", "fake_prob": 19.13, "real_prob": 80.87}
+  },
+  "input_check": {
+    "status": "ok",
+    "word_count": 150,
+    "known_features": {"format_model": 69, "content_model": 120},
+    "coverage": {"format_model": 0.89, "content_model": 0.73},
+    "points_from_empty": {"format_model": 33.77, "content_model": 30.63}
+  }
 }
 ```
 
-### `GET /health`
-Health check endpoint
+`input_check.status` is `ok`, `no_signal`, `no_known_words` or `url_only`; the API still scores
+the first three unless nothing is left to read.
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "message": "Fake News Detector is running"
-}
+| Route | Returns |
+|---|---|
+| `POST /api/predict` | the response above |
+| `POST /api/predict/simple` | `text`, `prediction`, `confidence`, `confidence_score`, `input_check` |
+| `GET /health` | `status`, `models`, `sklearn_version`; 503 when the format model did not load |
+| `GET /api/models` | each model's type, feature count, n-gram range, weight and empty-text score |
+
+Errors are JSON with `error` and a `code`: `bad_json`, `text_missing`, `text_not_string`,
+`text_empty` (400) · `json_required` (415) · `too_large` (413, over 256 KB of text) ·
+`url_only`, `no_known_words` (422, when cleaning leaves nothing) · `model_unavailable` (503) ·
+`internal_error` (500, with a `request_id`; details go to the server log only).
+
+## Tests
+
+```bash
+.venv/bin/python -m unittest discover -s tests -t . -v
 ```
 
-## 🚧 Limitations & Disclaimers
+Standard library only. The suite checks, among other things:
 
-- **Training Data**: Limited to the provided dataset
-- **Accuracy**: Not 100% accurate - use as guidance only
-- **Bias**: May reflect biases present in training data
-- **Context**: Cannot understand complex context or satire
-- **Languages**: Optimized for English text only
+- **Responses:** the API still answers exactly what the 2025 code answered (`tests/golden.json`).
+- **Page:** every state is reached with real input and shows no decimal percents.
+- **Demo texts:** each one lands in its state with room to spare.
+- **Run modes:** the documented commands work from any directory.
 
-**⚠️ Important**: Always verify news from multiple reliable sources. This tool is for educational and assistance purposes only.
+Further checks:
 
-## 🛣️ Future Enhancements
+- `scripts/capture_golden.py --check` re-derives `tests/golden.json` from commit `23207ce` (needs
+  `requirements-dev.txt`, because that code imports pandas).
+- `scripts/mutants.py` applies deliberate bugs and fails unless the tests catch each one.
+- `scripts/docker_smoke.sh` builds the image, runs it, and compares its answers with the golden
+  file.
 
-- [ ] **BERT Integration**: Upgrade to transformer-based models
-- [ ] **Source Verification**: Check against trusted news sources
-- [ ] **Explanation Features**: Highlight suspicious phrases
-- [ ] **Multi-language Support**: Support for multiple languages
-- [ ] **Real-time Updates**: Continuous learning from new data
-- [ ] **Browser Extension**: Chrome/Firefox extension
-- [ ] **Mobile App**: React Native or Flutter app
+## What is and isn't here
 
-## 🤝 Contributing
+- **Served:** `app/app.py`, `utils/`, `templates/index.html`, `static/`, `samples/`, and the four
+  model files named above.
+- **Not wired in:**
+  - `app/advanced_app.py`, `app/final_app.py` and `backend/` are earlier experiments.
+  - `model/advanced/` and `model/robust/` hold their models.
+  - `model/*_old.pkl` is the logistic regression the served forest replaced.
+  - The notebooks and training scripts are also unused.
+- **Training is switched off** (`main.py train` refuses): the data isn't here, and
+  `model/train_model.py` would overwrite the served forest with the older model.
+- **Accuracy:** the figures in `ENHANCEMENTS_SUMMARY.md` (format model 98.75 %, content model
+  96.5 %) and this README's earlier "85–90 %" (for the older model) are **author-reported and can't
+  be re-run without the dataset**. The test split came from the same collection as the training
+  data. Any real use needs evaluation on the text it will actually see.
+- **Style, not facts:** the format model learned what wire-service copy looks like. A
+  `WASHINGTON (Reuters) -` prefix alone moved its score by 19–30 points in our tests; the content
+  model doesn't see it.
+- **Old requirements:** the 2025 pins are kept in `docs/pins-2025.txt` as a record; they don't
+  install on current Python and can't load the committed models.
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit pull request
+## Roadmap
 
-## 📝 License
+- [ ] Explanation features: highlight the phrases that drove a score
+- [ ] Re-evaluate both models on held-out text from a different source
+- [ ] Remove or archive the unused apps and models
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Dataset**: Fake News Detection datasets from various sources
-- **Libraries**: scikit-learn, Flask, pandas, and other open-source projects
-- **Inspiration**: The need for reliable news verification tools
-
-## 📞 Support
-
-- **Issues**: Report bugs via GitHub Issues
-- **Questions**: Use GitHub Discussions
-- **Email**: Contact maintainers for urgent issues
-
----
-
-**Built with ❤️ for a more informed world** 🌍 
+No license file has been added yet.
