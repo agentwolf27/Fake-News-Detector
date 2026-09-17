@@ -1,0 +1,5 @@
+# Only for scripts/capture_golden.py, which runs the 2025 code (it imports pandas).
+-r requirements.txt
+pandas==3.0.5
+python-dateutil==2.9.0.post0
+six==1.17.0

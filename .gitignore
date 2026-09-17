@@ -70,4 +70,5 @@ logs/
 # Temporary directories that aren't needed
 ~/
 temp/
-tmp/ 
+tmp/
+graphify-out/
