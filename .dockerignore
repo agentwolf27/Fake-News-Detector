@@ -1,0 +1,13 @@
+# Allowlist: the image carries only the served path and the four served model files.
+*
+!requirements.txt
+!app/app.py
+!utils/*.py
+!templates/index.html
+!static/style.css
+!static/app.js
+!samples/*.json
+!model/fake_news_model.pkl
+!model/vectorizer.pkl
+!model/content_model.pkl
+!model/content_vectorizer.pkl

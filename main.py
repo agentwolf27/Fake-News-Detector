@@ -1,99 +1,78 @@
 #!/usr/bin/env python3
-"""
-Fake News Detector - Main Entry Point
+"""Fake News Detector — command-line entry point.
+
+    python main.py run        start the web app on http://127.0.0.1:8080 (PORT to move it)
+    python main.py test       run the test suite
+    python main.py samples    score the demo texts in samples/
+    python main.py download   fetch the Kaggle dataset (needs Kaggle credentials)
+    python main.py train      refused: see DECISIONS.md D1
 """
 
-import sys
-import os
 import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
 
-def download_dataset():
-    """Download fake news dataset from Kaggle"""
-    print("📥 Downloading fake news dataset...")
-    os.system("python model/download_dataset.py")
+ROOT = Path(__file__).resolve().parent
 
-def train_model():
-    """Train the fake news detection model"""
-    print("🤖 Training fake news detection model...")
-    os.system("python model/train_model.py")
 
-def run_app():
-    """Run the Flask web application"""
-    print("🚀 Starting the web application...")
-    os.system("python app/app.py")
+def run_app() -> None:
+    """Replace this process with the web app, using the same interpreter."""
+    app = ROOT / "app" / "app.py"
+    os.execv(sys.executable, [sys.executable, str(app)])
 
-def run_tests():
-    """Run some test predictions"""
-    from utils.preprocess import get_prediction_details
-    
-    test_cases = [
-        {
-            "text": "Scientists at Harvard have discovered a new treatment for diabetes that shows promising results in clinical trials.",
-            "expected": "REAL"
-        },
-        {
-            "text": "BREAKING: Aliens have landed in Area 51 and are demanding to speak with our planet's manager!",
-            "expected": "FAKE"
-        },
-        {
-            "text": "The stock market closed up 2% today following positive economic indicators and strong quarterly earnings reports.",
-            "expected": "REAL"
-        },
-        {
-            "text": "Eating this one weird fruit will cure all diseases and make you immortal, doctors hate this trick!",
-            "expected": "FAKE"
-        }
-    ]
-    
-    print("🧪 Running test predictions...")
-    print("=" * 60)
-    
-    for i, test in enumerate(test_cases, 1):
-        result = get_prediction_details(test["text"])
-        status = "✅" if result["prediction"] == test["expected"] else "❌"
-        
-        print(f"\nTest {i}: {status}")
-        print(f"Text: {test['text'][:50]}...")
-        print(f"Expected: {test['expected']}")
-        print(f"Predicted: {result['prediction']} ({result['confidence']}% confidence)")
 
-def main():
+def run_tests() -> int:
+    return subprocess.call([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", "."], cwd=ROOT)
+
+
+def score_samples() -> int:
+    sys.path.insert(0, str(ROOT))
+    from utils import present
+    from utils.preprocess import blend, read
+
+    for entry in json.loads((ROOT / "samples" / "index.json").read_text(encoding="utf-8")):
+        text = json.loads((ROOT / "samples" / entry["file"]).read_text(encoding="utf-8"))["text"]
+        reading = read(text)
+        fake, _ = blend(reading)
+        print(f"{entry['label']:36} {reading.status:15} {present.fake_real(fake)}")
+    return 0
+
+
+def download_dataset() -> int:
+    return subprocess.call([sys.executable, str(ROOT / "model" / "download_dataset.py")], cwd=ROOT)
+
+
+def refuse_training() -> int:
+    print(
+        "Training is switched off in this version.\n"
+        "The served models (model/fake_news_model.pkl, model/content_model.pkl) were trained with scripts\n"
+        "and data that are not in this repository; model/train_model.py would overwrite them with a\n"
+        "different, older model. See DECISIONS.md D1."
+    )
+    return 1
+
+
+def main() -> int:
     parser = argparse.ArgumentParser(description="Fake News Detector")
-    parser.add_argument('action', 
-                       choices=['download', 'train', 'run', 'test', 'all'],
-                       help='Action to perform')
-    
-    args = parser.parse_args()
-    
-    if args.action == 'download':
-        download_dataset()
-    elif args.action == 'train':
-        train_model()
-    elif args.action == 'run':
+    parser.add_argument("action", choices=["run", "test", "samples", "download", "train", "all"])
+    action = parser.parse_args().action
+    if action == "run":
         run_app()
-    elif args.action == 'test':
-        run_tests()
-    elif args.action == 'all':
-        print("🔄 Running complete pipeline...")
-        download_dataset()
-        print("\n" + "="*50)
-        train_model()
-        print("\n" + "="*50)
-        run_tests()
-        print("\n" + "="*50)
-        run_app()
+        return 0  # not reached
+    if action == "test":
+        return run_tests()
+    if action == "samples":
+        return score_samples()
+    if action == "download":
+        return download_dataset()
+    return refuse_training()  # train, all
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print("🔍 Fake News Detector")
-        print("=" * 30)
-        print("Usage:")
-        print("  python main.py download - Download Kaggle dataset")
-        print("  python main.py train    - Train the model")
-        print("  python main.py run      - Run the web app")
-        print("  python main.py test     - Test predictions")
-        print("  python main.py all      - Do everything")
-        print()
-        print("Quick start: python main.py all")
-    else:
-        main() 
+        print(__doc__.strip())
+        sys.exit(0)
+    sys.exit(main())
