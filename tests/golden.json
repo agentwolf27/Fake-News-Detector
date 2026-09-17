@@ -1,0 +1,566 @@
+{
+ "inputs": {
+  "area51_aliens": {
+   "predict": {
+    "body": {
+     "confidence": 64.27,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 64.27,
+      "real": 35.73
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 61.56,
+       "prediction": "FAKE",
+       "real_prob": 38.44
+      },
+      "format_model": {
+       "fake_prob": 66.08,
+       "prediction": "FAKE",
+       "real_prob": 33.92
+      }
+     },
+     "models_agree": true,
+     "prediction": "FAKE",
+     "text": "BREAKING: Aliens have landed in Area 51 and are demanding to speak with our planet's manager!"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 64.27,
+     "confidence_score": 0.6426999999999999,
+     "prediction": "FAKE",
+     "text": "BREAKING: Aliens have landed in Area 51 and are demanding to speak with our planet's manager!"
+    },
+    "status": 200
+   },
+   "text": "BREAKING: Aliens have landed in Area 51 and are demanding to speak with our planet's manager!"
+  },
+  "birds_drones": {
+   "predict": {
+    "body": {
+     "confidence": 51.44,
+     "confidence_level": "VERY_LOW",
+     "ensemble_probabilities": {
+      "fake": 51.44,
+      "real": 48.56
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 40.22,
+       "prediction": "REAL",
+       "real_prob": 59.78
+      },
+      "format_model": {
+       "fake_prob": 58.92,
+       "prediction": "FAKE",
+       "real_prob": 41.08
+      }
+     },
+     "models_agree": false,
+     "prediction": "FAKE",
+     "text": "Government plans to replace all birds with surveillance drones"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 51.44,
+     "confidence_score": 0.5144,
+     "prediction": "FAKE",
+     "text": "Government plans to replace all birds with surveillance drones"
+    },
+    "status": 200
+   },
+   "text": "Government plans to replace all birds with surveillance drones"
+  },
+  "central_bank": {
+   "predict": {
+    "body": {
+     "confidence": 51.07,
+     "confidence_level": "VERY_LOW",
+     "ensemble_probabilities": {
+      "fake": 51.07,
+      "real": 48.93
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 36.81,
+       "prediction": "REAL",
+       "real_prob": 63.19
+      },
+      "format_model": {
+       "fake_prob": 60.59,
+       "prediction": "FAKE",
+       "real_prob": 39.41
+      }
+     },
+     "models_agree": false,
+     "prediction": "FAKE",
+     "text": "The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 51.07,
+     "confidence_score": 0.5107,
+     "prediction": "FAKE",
+     "text": "The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+    },
+    "status": 200
+   },
+   "text": "The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+  },
+  "central_bank_dateline": {
+   "predict": {
+    "body": {
+     "confidence": 66.5,
+     "confidence_level": "MEDIUM",
+     "ensemble_probabilities": {
+      "fake": 33.5,
+      "real": 66.5
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 36.81,
+       "prediction": "REAL",
+       "real_prob": 63.19
+      },
+      "format_model": {
+       "fake_prob": 31.3,
+       "prediction": "REAL",
+       "real_prob": 68.7
+      }
+     },
+     "models_agree": true,
+     "prediction": "REAL",
+     "text": "WASHINGTON (Reuters) - The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 66.5,
+     "confidence_score": 0.665,
+     "prediction": "REAL",
+     "text": "WASHINGTON (Reuters) - The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+    },
+    "status": 200
+   },
+   "text": "WASHINGTON (Reuters) - The central bank left interest rates unchanged, citing steady inflation and a stable labor market."
+  },
+  "gibberish": {
+   "predict": {
+    "body": {
+     "confidence": 59.21,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 59.21,
+      "real": 40.79
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 49.76,
+       "prediction": "REAL",
+       "real_prob": 50.24
+      },
+      "format_model": {
+       "fake_prob": 65.52,
+       "prediction": "FAKE",
+       "real_prob": 34.48
+      }
+     },
+     "models_agree": false,
+     "prediction": "FAKE",
+     "text": "zzzz qqqq xxxx"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 59.21,
+     "confidence_score": 0.5921,
+     "prediction": "FAKE",
+     "text": "zzzz qqqq xxxx"
+    },
+    "status": 200
+   },
+   "text": "zzzz qqqq xxxx"
+  },
+  "harvard_diabetes": {
+   "predict": {
+    "body": {
+     "confidence": 61.67,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 61.67,
+      "real": 38.33
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 54.04,
+       "prediction": "FAKE",
+       "real_prob": 45.96
+      },
+      "format_model": {
+       "fake_prob": 66.75,
+       "prediction": "FAKE",
+       "real_prob": 33.25
+      }
+     },
+     "models_agree": true,
+     "prediction": "FAKE",
+     "text": "Scientists at Harvard have discovered a new treatment for diabetes that shows promising results in clinical trials."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 61.67,
+     "confidence_score": 0.6167,
+     "prediction": "FAKE",
+     "text": "Scientists at Harvard have discovered a new treatment for diabetes that shows promising results in clinical trials."
+    },
+    "status": 200
+   },
+   "text": "Scientists at Harvard have discovered a new treatment for diabetes that shows promising results in clinical trials."
+  },
+  "html_wrapped": {
+   "predict": {
+    "body": {
+     "confidence": 52.12,
+     "confidence_level": "VERY_LOW",
+     "ensemble_probabilities": {
+      "fake": 47.88,
+      "real": 52.12
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 30.83,
+       "prediction": "REAL",
+       "real_prob": 69.17
+      },
+      "format_model": {
+       "fake_prob": 59.25,
+       "prediction": "FAKE",
+       "real_prob": 40.75
+      }
+     },
+     "models_agree": false,
+     "prediction": "REAL",
+     "text": "<p>The city council approved a new <b>budget</b> on Tuesday.</p> http://example.com"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 52.12,
+     "confidence_score": 0.5212,
+     "prediction": "REAL",
+     "text": "<p>The city council approved a new <b>budget</b> on Tuesday.</p> http://example.com"
+    },
+    "status": 200
+   },
+   "text": "<p>The city council approved a new <b>budget</b> on Tuesday.</p> http://example.com"
+  },
+  "mit_water": {
+   "predict": {
+    "body": {
+     "confidence": 58.42,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 58.42,
+      "real": 41.58
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 48.13,
+       "prediction": "REAL",
+       "real_prob": 51.87
+      },
+      "format_model": {
+       "fake_prob": 65.28,
+       "prediction": "FAKE",
+       "real_prob": 34.72
+      }
+     },
+     "models_agree": false,
+     "prediction": "FAKE",
+     "text": "Scientists at MIT develop new water purification technology using solar energy"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 58.42,
+     "confidence_score": 0.5842,
+     "prediction": "FAKE",
+     "text": "Scientists at MIT develop new water purification technology using solar energy"
+    },
+    "status": 200
+   },
+   "text": "Scientists at MIT develop new water purification technology using solar energy"
+  },
+  "sensational_article": {
+   "predict": {
+    "body": {
+     "confidence": 70.64,
+     "confidence_level": "MEDIUM",
+     "ensemble_probabilities": {
+      "fake": 70.64,
+      "real": 29.36
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 80.66,
+       "prediction": "FAKE",
+       "real_prob": 19.34
+      },
+      "format_model": {
+       "fake_prob": 63.96,
+       "prediction": "FAKE",
+       "real_prob": 36.04
+      }
+     },
+     "models_agree": true,
+     "prediction": "FAKE",
+     "text": "You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up to the fact that the gov..."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 70.64,
+     "confidence_score": 0.7064,
+     "prediction": "FAKE",
+     "text": "You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up to the fact that the gov..."
+    },
+    "status": 200
+   },
+   "text": "You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up to the fact that the government has been secretly adding chemicals to tap water to control our minds, and the so-called experts are terrified. Share this before it gets deleted!!! A brave whistleblower who asked not to be named says the elites have known for years and are laughing at us. Doctors are furious because this simple trick protects your family completely. Wake up, people, and do your own research before it is too late. They will try to silence this story, but the truth cannot be stopped. Everything you have been told is a lie and the proof is right in front of you."
+  },
+  "sensational_article_dateline": {
+   "predict": {
+    "body": {
+     "confidence": 58.94,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 58.94,
+      "real": 41.06
+     },
+     "is_uncertain": true,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 80.66,
+       "prediction": "FAKE",
+       "real_prob": 19.34
+      },
+      "format_model": {
+       "fake_prob": 44.46,
+       "prediction": "REAL",
+       "real_prob": 55.54
+      }
+     },
+     "models_agree": false,
+     "prediction": "FAKE",
+     "text": "WASHINGTON (Reuters) - You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up t..."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 58.94,
+     "confidence_score": 0.5893999999999999,
+     "prediction": "FAKE",
+     "text": "WASHINGTON (Reuters) - You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up t..."
+    },
+    "status": 200
+   },
+   "text": "WASHINGTON (Reuters) - You won't believe what they're hiding from you! Insiders have finally EXPOSED the shocking truth that the mainstream media refuses to report. Thousands of people are waking up to the fact that the government has been secretly adding chemicals to tap water to control our minds, and the so-called experts are terrified. Share this before it gets deleted!!! A brave whistleblower who asked not to be named says the elites have known for years and are laughing at us. Doctors are furious because this simple trick protects your family completely. Wake up, people, and do your own research before it is too late. They will try to silence this story, but the truth cannot be stopped. Everything you have been told is a lie and the proof is right in front of you."
+  },
+  "stock_market": {
+   "predict": {
+    "body": {
+     "confidence": 60.06,
+     "confidence_level": "LOW",
+     "ensemble_probabilities": {
+      "fake": 60.06,
+      "real": 39.94
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 50.44,
+       "prediction": "FAKE",
+       "real_prob": 49.56
+      },
+      "format_model": {
+       "fake_prob": 66.46,
+       "prediction": "FAKE",
+       "real_prob": 33.54
+      }
+     },
+     "models_agree": true,
+     "prediction": "FAKE",
+     "text": "The stock market closed up 2% today following positive economic indicators and strong quarterly earnings reports."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 60.06,
+     "confidence_score": 0.6006,
+     "prediction": "FAKE",
+     "text": "The stock market closed up 2% today following positive economic indicators and strong quarterly earnings reports."
+    },
+    "status": 200
+   },
+   "text": "The stock market closed up 2% today following positive economic indicators and strong quarterly earnings reports."
+  },
+  "weird_fruit": {
+   "predict": {
+    "body": {
+     "confidence": 70.72,
+     "confidence_level": "MEDIUM",
+     "ensemble_probabilities": {
+      "fake": 70.72,
+      "real": 29.28
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 76.11,
+       "prediction": "FAKE",
+       "real_prob": 23.89
+      },
+      "format_model": {
+       "fake_prob": 67.14,
+       "prediction": "FAKE",
+       "real_prob": 32.86
+      }
+     },
+     "models_agree": true,
+     "prediction": "FAKE",
+     "text": "Eating this one weird fruit will cure all diseases and make you immortal, doctors hate this trick!"
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 70.72,
+     "confidence_score": 0.7071999999999999,
+     "prediction": "FAKE",
+     "text": "Eating this one weird fruit will cure all diseases and make you immortal, doctors hate this trick!"
+    },
+    "status": 200
+   },
+   "text": "Eating this one weird fruit will cure all diseases and make you immortal, doctors hate this trick!"
+  },
+  "wire_article": {
+   "predict": {
+    "body": {
+     "confidence": 73.3,
+     "confidence_level": "MEDIUM",
+     "ensemble_probabilities": {
+      "fake": 26.7,
+      "real": 73.3
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 19.13,
+       "prediction": "REAL",
+       "real_prob": 80.87
+      },
+      "format_model": {
+       "fake_prob": 31.75,
+       "prediction": "REAL",
+       "real_prob": 68.25
+      }
+     },
+     "models_agree": true,
+     "prediction": "REAL",
+     "text": "City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership between 11 p.m. and 2 ..."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 73.3,
+     "confidence_score": 0.733,
+     "prediction": "REAL",
+     "text": "City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership between 11 p.m. and 2 ..."
+    },
+    "status": 200
+   },
+   "text": "City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership between 11 p.m. and 2 a.m. rose by about 18 percent. The authority's board approved the change in a 7-2 vote. Board chair Maria Lopez said the extension would cost roughly $2.4 million a year and would be funded through a mix of state grants and fare revenue. Two board members who voted against the plan said they were concerned about the long-term budget, noting that the state grant expires in 2028. The authority said it would publish quarterly ridership figures and review the program after one year. Riders at a public hearing last week largely supported the change, with several shift workers saying the pilot had cut their commute times. The new schedule takes effect on the first Sunday of next month."
+  },
+  "wire_article_dateline": {
+   "predict": {
+    "body": {
+     "confidence": 84.57,
+     "confidence_level": "HIGH",
+     "ensemble_probabilities": {
+      "fake": 15.43,
+      "real": 84.57
+     },
+     "is_uncertain": false,
+     "model_breakdown": {
+      "content_model": {
+       "fake_prob": 19.13,
+       "prediction": "REAL",
+       "real_prob": 80.87
+      },
+      "format_model": {
+       "fake_prob": 12.96,
+       "prediction": "REAL",
+       "real_prob": 87.04
+      }
+     },
+     "models_agree": true,
+     "prediction": "REAL",
+     "text": "WASHINGTON (Reuters) - City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership..."
+    },
+    "status": 200
+   },
+   "simple": {
+    "body": {
+     "confidence": 84.57,
+     "confidence_score": 0.8456999999999999,
+     "prediction": "REAL",
+     "text": "WASHINGTON (Reuters) - City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership..."
+    },
+    "status": 200
+   },
+   "text": "WASHINGTON (Reuters) - City officials said on Monday that the regional transit authority will extend late-night bus service on four routes starting next month, after a six-month pilot showed ridership between 11 p.m. and 2 a.m. rose by about 18 percent. The authority's board approved the change in a 7-2 vote. Board chair Maria Lopez said the extension would cost roughly $2.4 million a year and would be funded through a mix of state grants and fare revenue. Two board members who voted against the plan said they were concerned about the long-term budget, noting that the state grant expires in 2028. The authority said it would publish quarterly ridership figures and review the program after one year. Riders at a public hearing last week largely supported the change, with several shift workers saying the pilot had cut their commute times. The new schedule takes effect on the first Sunday of next month."
+  }
+ },
+ "note": "Bodies and statuses from app/app.py at 23207ce through Flask's test client. Never regenerated on this branch.",
+ "regex_probes": {
+  "5 > 3 and 2 < 4": "and",
+  "< not a tag": "not a tag",
+  "<<<>>>": "",
+  "<<x>> y": "y",
+  "<a href='x'>link</a> and <br/> break": "link and break",
+  "<p>a</p> b > c": "a b c",
+  ">> leading": "leading",
+  "a <b> c < d": "a c d",
+  "mid <x> and <y": "mid and y",
+  "no tags here": "no tags here",
+  "tail < open": "tail open",
+  "x < y < z > w": "x w"
+ },
+ "source_commit": "23207ce"
+}
