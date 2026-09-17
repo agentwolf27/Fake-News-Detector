@@ -127,3 +127,13 @@ Evidence: `git diff --exit-code 23207ce -- model/fake_news_model.pkl model/vecto
 Evidence: `node shot.mjs <url> … 1280 800` (scratch puppeteer script) on `/`, and on `/?sample=` with `wire_report`, `sensational_post`, `sensational_dateline` and `headline_only` — `"messages":[]` for all five.
 Evidence: `.venv/bin/python scripts/rehearse.py --record --window 1280x800` — 9 responses, all 200; states first_load, verdict (27/73), verdict (63/37), disagreement (48/52), no_signal.
 Evidence: word-count parity — the page's JS counter and `word_count` both give 5 for `a␜b<U+0085>c<U+FEFF>d  e`.
+
+## 2026-09-16 — claude (with Vishrut), pushed and opened the PR
+
+Vishrut approved the push. `dev` was created on GitHub from `main` (`23207ce`; no other branch
+existed), `feat/run-and-present` was pushed with its own upstream, and PR #1 was opened into
+`dev`. The repo has no CI. `dev` is not the default branch; whether it should be is still
+Vishrut's call.
+
+Evidence: `git ls-remote --heads origin` — `dev` and `main` at `23207ce`, `feat/run-and-present` at `439a8ea`.
+Evidence: `gh pr view 1` — OPEN, `dev` ← `feat/run-and-present`, mergeable; `gh pr checks 1` — no checks reported.
