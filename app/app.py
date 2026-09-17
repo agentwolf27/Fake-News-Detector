@@ -1,236 +1,299 @@
-from flask import Flask, render_template, request, jsonify
-import sys
+"""Fake News Detector — the web page and the JSON API.
+
+    .venv/bin/python app/app.py            # http://127.0.0.1:8080, debugger off
+    PORT=8090 FLASK_DEBUG=1 .venv/bin/python app/app.py
+    .venv/bin/gunicorn --bind 127.0.0.1:8080 --workers 2 --preload app.app:app
+"""
+
+from __future__ import annotations
+
+import json
+import logging
 import os
+import sys
+import uuid
+from pathlib import Path
 
-# Add parent directory to path to import utils
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils.preprocess import get_prediction_details, predict_ensemble
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-app = Flask(__name__, 
-           template_folder='../templates',
-           static_folder='../static')
+import sklearn  # noqa: E402
+from flask import Flask, jsonify, render_template, request  # noqa: E402
+from werkzeug.exceptions import HTTPException  # noqa: E402
 
-@app.route('/')
-def index():
-    """Main page"""
-    return render_template('index.html')
+from utils import present  # noqa: E402
+from utils.models import get_models  # noqa: E402
+from utils.preprocess import (  # noqa: E402
+    COVERAGE_FLOOR,
+    MAX_TEXT_BYTES,
+    NO_SIGNAL_POINTS,
+    ModelUnavailable,
+    ensemble_result,
+    read,
+    word_count,
+)
 
-@app.route('/', methods=['POST'])
-def predict():
-    """Handle prediction requests from the web interface"""
+MAX_BODY_BYTES = 1024 * 1024
+
+app = Flask(__name__, template_folder=str(REPO_ROOT / "templates"), static_folder=str(REPO_ROOT / "static"))
+app.config.update(MAX_CONTENT_LENGTH=MAX_BODY_BYTES, MAX_FORM_MEMORY_SIZE=MAX_BODY_BYTES)
+log = logging.getLogger("fake_news_detector")
+
+# Load the models once, at import, so gunicorn --preload shares them between workers.
+get_models()
+
+
+def _load_samples() -> list[dict]:
+    index = REPO_ROOT / "samples" / "index.json"
+    if not index.is_file():
+        return []
+    samples = []
+    for entry in json.loads(index.read_text(encoding="utf-8")):
+        body = json.loads((REPO_ROOT / "samples" / entry["file"]).read_text(encoding="utf-8"))
+        samples.append({**entry, "text": body["text"]})
+    return samples
+
+
+SAMPLES = _load_samples()
+SAMPLES_BY_ID = {s["id"]: s for s in SAMPLES}
+
+DESCRIPTIONS = {
+    "format_model": "Random forest over TF-IDF word patterns (one- to three-word phrases), including datelines and agency names",
+    "content_model": "Logistic regression over TF-IDF words, read after agency names and datelines are removed",
+    "ensemble": "Weighted blend: 60% format model, 40% content model",
+}
+
+
+class ApiError(Exception):
+    def __init__(self, status: int, code: str, message: str, **extra):
+        super().__init__(message)
+        self.status, self.code, self.message, self.extra = status, code, message, extra
+
+
+def _wants_json() -> bool:
+    return request.path.startswith("/api/") or request.path == "/health"
+
+
+def _text_bytes(text: str) -> int:
+    return len(text.encode("utf-8", "surrogatepass"))
+
+
+# ---------------------------------------------------------------- JSON API
+
+
+def _json_text() -> str:
+    if not request.is_json:
+        raise ApiError(415, "json_required", "Send the body as JSON with Content-Type: application/json.")
     try:
-        text = request.form['text']
-        
-        if not text.strip():
-            return render_template('index.html', 
-                                 error="Please enter some text to analyze")
-        
-        # Get enhanced prediction with ensemble approach
-        result = predict_ensemble(text)
-        
-        if 'error' in result:
-            return render_template('index.html', error=result['error'])
-        
-        # Format results for display
-        prediction = result['prediction']
-        confidence = result['confidence']
-        confidence_level = result['confidence_level']
-        is_uncertain = result['is_uncertain']
-        models_agree = result['models_agree']
-        
-        # Determine display style based on prediction and confidence
-        if prediction == 'FAKE':
-            status_class = 'fake'
-            status_icon = '🔴'
-        else:
-            status_class = 'real'
-            status_icon = '🟢'
-        
-        # Add uncertainty indicator
-        if is_uncertain:
-            status_icon += ' ⚠️'
-            uncertainty_message = "This prediction has high uncertainty. Consider the content carefully."
-        else:
-            uncertainty_message = None
-        
-        # Model agreement indicator
-        agreement_message = None
-        if result.get('content_prediction') is not None:
-            if models_agree:
-                agreement_message = "Both format and content models agree on this prediction."
-            else:
-                agreement_message = f"Models disagree: Format={result['format_prediction']}, Content={result['content_prediction']}"
-        
-        return render_template('index.html',
-                             prediction=prediction,
-                             confidence=confidence,
-                             confidence_level=confidence_level,
-                             status_class=status_class,
-                             status_icon=status_icon,
-                             text=text,
-                             is_uncertain=is_uncertain,
-                             uncertainty_message=uncertainty_message,
-                             models_agree=models_agree,
-                             agreement_message=agreement_message,
-                             ensemble_fake_prob=result.get('ensemble_fake_prob'),
-                             ensemble_real_prob=result.get('ensemble_real_prob'),
-                             format_fake_prob=result.get('format_fake_prob'),
-                             format_real_prob=result.get('format_real_prob'),
-                             content_fake_prob=result.get('content_fake_prob'),
-                             content_real_prob=result.get('content_real_prob'))
-        
-    except Exception as e:
-        return render_template('index.html', 
-                             error=f"An error occurred: {str(e)}")
+        data = request.get_json(silent=True)
+    except RecursionError:
+        data = None
+    if not isinstance(data, dict):
+        raise ApiError(400, "bad_json", 'The body must be a JSON object with a "text" field.')
+    if not data or "text" not in data:
+        raise ApiError(400, "text_missing", "No text provided")
+    text = data["text"]
+    if not isinstance(text, str):
+        raise ApiError(400, "text_not_string", 'The "text" field must be a string.')
+    size = _text_bytes(text)
+    if size > MAX_TEXT_BYTES:
+        raise ApiError(413, "too_large", f"The text is {size} bytes; the limit is {MAX_TEXT_BYTES} bytes.",
+                       text_bytes=size, limit_bytes=MAX_TEXT_BYTES)
+    if not text.strip():
+        raise ApiError(400, "text_empty", "Empty text provided")
+    return text
 
-@app.route('/api/predict', methods=['POST'])
+
+def _json_reading():
+    text = _json_text()
+    try:
+        reading = read(text)
+    except ModelUnavailable as exc:
+        raise ApiError(503, "model_unavailable", "The model files did not load on this server.", reason=exc.reason)
+    if reading.empty:
+        if reading.status == "url_only":
+            raise ApiError(422, "url_only", "The text is only a link; the detector reads text and does not fetch pages.",
+                           input_check=reading.input_check())
+        raise ApiError(422, "no_known_words", "Nothing in this text is left for the models to read.",
+                       input_check=reading.input_check())
+    return reading
+
+
+@app.post("/api/predict")
 def api_predict():
-    """API endpoint for predictions"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'text' not in data:
-            return jsonify({'error': 'No text provided'}), 400
-        
-        text = data['text']
-        
-        if not text.strip():
-            return jsonify({'error': 'Empty text provided'}), 400
-        
-        # Get enhanced prediction
-        result = predict_ensemble(text)
-        
-        if 'error' in result:
-            return jsonify(result), 500
-        
-        # Return enhanced API response
-        api_response = {
-            'prediction': result['prediction'],
-            'confidence': result['confidence'],
-            'confidence_level': result['confidence_level'],
-            'is_uncertain': result['is_uncertain'],
-            'models_agree': result['models_agree'],
-            'text': result['text'],
-            'ensemble_probabilities': {
-                'fake': result['ensemble_fake_prob'],
-                'real': result['ensemble_real_prob']
-            },
-            'model_breakdown': {
-                'format_model': {
-                    'prediction': result['format_prediction'],
-                    'fake_prob': result['format_fake_prob'],
-                    'real_prob': result['format_real_prob']
-                }
+    reading = _json_reading()
+    result = ensemble_result(reading)
+    body = {
+        "prediction": result["prediction"],
+        "confidence": result["confidence"],
+        "confidence_level": result["confidence_level"],
+        "is_uncertain": result["is_uncertain"],
+        "models_agree": result["models_agree"],
+        "text": result["text"],
+        "ensemble_probabilities": {"fake": result["ensemble_fake_prob"], "real": result["ensemble_real_prob"]},
+        "model_breakdown": {
+            "format_model": {
+                "prediction": result["format_prediction"],
+                "fake_prob": result["format_fake_prob"],
+                "real_prob": result["format_real_prob"],
             }
+        },
+        "input_check": reading.input_check(),
+    }
+    if result.get("content_prediction") is not None:
+        body["model_breakdown"]["content_model"] = {
+            "prediction": result["content_prediction"],
+            "fake_prob": result["content_fake_prob"],
+            "real_prob": result["content_real_prob"],
         }
-        
-        # Add content model results if available
-        if result.get('content_prediction') is not None:
-            api_response['model_breakdown']['content_model'] = {
-                'prediction': result['content_prediction'],
-                'fake_prob': result['content_fake_prob'],
-                'real_prob': result['content_real_prob']
-            }
-        
-        return jsonify(api_response)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify(body)
 
-@app.route('/api/predict/simple', methods=['POST'])
+
+@app.post("/api/predict/simple")
 def api_predict_simple():
-    """Simple API endpoint for basic predictions (backward compatibility)"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'text' not in data:
-            return jsonify({'error': 'No text provided'}), 400
-        
-        text = data['text']
-        result = get_prediction_details(text)
-        
-        if 'error' in result:
-            return jsonify(result), 500
-        
-        # Return simple response for compatibility
-        return jsonify({
-            'text': result['text'],
-            'prediction': result['prediction'],
-            'confidence': result['confidence'],
-            'confidence_score': result['confidence'] / 100
-        })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/health')
-def health():
-    """Health check endpoint"""
+    reading = _json_reading()
+    result = ensemble_result(reading)
     return jsonify({
-        'status': 'healthy',
-        'service': 'fake-news-detector',
-        'models': {
-            'format_model': 'available',
-            'content_model': 'available' if os.path.exists('model/content_model.pkl') else 'not_available'
-        }
+        "text": result["text"],
+        "prediction": result["prediction"],
+        "confidence": result["confidence"],
+        "confidence_score": result["confidence"] / 100,
+        "input_check": reading.input_check(),
     })
 
-@app.route('/api/models')
-def api_models():
-    """Get information about available models"""
-    models_info = {
-        'format_model': {
-            'description': 'Focuses on source attribution and professional formatting',
-            'available': os.path.exists('model/fake_news_model.pkl')
+
+@app.get("/health")
+def health():
+    models = get_models()
+    body = {
+        "status": "healthy" if models.ready else "unavailable",
+        "service": "fake-news-detector",
+        "models": {
+            key: "available" if pair.loaded else "not_available" for key, pair in models.pairs.items()
         },
-        'content_model': {
-            'description': 'Focuses on content quality and writing patterns',
-            'available': os.path.exists('model/content_model.pkl')
-        },
-        'ensemble': {
-            'description': 'Combines both models for enhanced accuracy',
-            'available': True
-        }
+        "sklearn_version": sklearn.__version__,
     }
-    
-    return jsonify(models_info)
+    if not models.ready:
+        body["reason"] = models.format.failure
+    return jsonify(body), 200 if models.ready else 503
 
-@app.errorhandler(404)
-def not_found(error):
-    """
-    404 error handler
-    """
-    return render_template('index.html', 
-                         result={'error': 'Page not found'}), 404
 
-@app.errorhandler(500)
-def internal_error(error):
-    """
-    500 error handler
-    """
-    return render_template('index.html', 
-                         result={'error': 'Internal server error'}), 500
+@app.get("/api/models")
+def api_models():
+    models = get_models()
+    body = {}
+    for key, pair in models.pairs.items():
+        body[key] = {
+            "description": DESCRIPTIONS[key],
+            "available": all(f.exists for f in pair.files),
+            "loaded": pair.loaded,
+            "type": pair.model_type if pair.loaded else None,
+            "n_features": pair.n_features if pair.loaded else None,
+            "ngram_range": pair.ngram_range if pair.loaded else None,
+            "weight": pair.weight,
+            "empty_text_fake_prob": round(pair.empty_fake * 100, 2) if pair.loaded else None,
+        }
+    body["ensemble"] = {
+        "description": DESCRIPTIONS["ensemble"],
+        "available": models.ready,
+        "loaded": models.ready,
+        "weights": {key: pair.weight for key, pair in models.pairs.items()},
+    }
+    body["no_signal_points"] = NO_SIGNAL_POINTS
+    body["coverage_floor"] = COVERAGE_FLOOR
+    return jsonify(body)
 
-if __name__ == '__main__':
-    # Check if model files exist
-    model_path = os.path.join('model', 'fake_news_model.pkl')
-    vectorizer_path = os.path.join('model', 'vectorizer.pkl')
-    
-    if not os.path.exists(model_path) or not os.path.exists(vectorizer_path):
-        print("❌ Model files not found!")
-        print("Please run the following command first:")
-        print("python model/train_model.py")
-        print()
-        print("This will train the model and create the required .pkl files.")
-        sys.exit(1)
-    
-    print("🚀 Starting Enhanced Fake News Detector...")
-    print("📱 Open your browser and go to: http://localhost:8080")
-    print("🔍 Ready to detect fake news with ensemble models!")
-    print("✨ Features:")
-    print("   - Ensemble predictions (format + content)")
-    print("   - Uncertainty indicators")
-    print("   - Model agreement analysis")
-    print("   - Enhanced confidence levels")
-    
-    app.run(debug=True, host='0.0.0.0', port=8080) 
+
+# ---------------------------------------------------------------- page
+
+
+def _render(view, *, text: str = "", status: int = 200, active_sample: str | None = None):
+    return render_template(
+        "index.html",
+        view=view,
+        text=text,
+        count=present.words(word_count(text)),
+        samples=SAMPLES,
+        active_sample=active_sample,
+        scope=present.SCOPE_LINE,
+    ), status
+
+
+def _score_page(text: str, *, active_sample: str | None = None):
+    size = _text_bytes(text)
+    if size > MAX_TEXT_BYTES:
+        return _render(present.error("too_large", text_bytes=size, limit_bytes=MAX_TEXT_BYTES), status=413)
+    if not text.strip():
+        return _render(present.error("text_empty"), text=text, status=400)
+    try:
+        reading = read(text)
+    except ModelUnavailable as exc:
+        return _render(present.error("model_unavailable", detail=exc.reason), text=text, status=503)
+    return _render(present.scored(reading, get_models()), text=text, active_sample=active_sample)
+
+
+@app.get("/")
+def page():
+    sample_id = request.args.get("sample")
+    if sample_id is None:
+        return _render(present.first_load())
+    sample = SAMPLES_BY_ID.get(sample_id)
+    if sample is None:
+        return _render(present.error("not_found", path=request.full_path.rstrip("?")), status=404)
+    return _score_page(sample["text"], active_sample=sample_id)
+
+
+@app.post("/")
+def page_submit():
+    return _score_page(request.form.get("text", ""))
+
+
+# ---------------------------------------------------------------- errors
+
+HTTP_CODES = {400: "bad_request", 404: "not_found", 405: "method_not_allowed", 413: "too_large", 415: "json_required"}
+
+
+@app.errorhandler(ApiError)
+def handle_api_error(exc: ApiError):
+    return jsonify({"error": exc.message, "code": exc.code, **exc.extra}), exc.status
+
+
+@app.errorhandler(HTTPException)
+def handle_http_error(exc: HTTPException):
+    status = exc.code or 500
+    code = HTTP_CODES.get(status, f"http_{status}")
+    if _wants_json():
+        messages = {
+            "not_found": "No such endpoint.",
+            "method_not_allowed": "That method is not allowed on this endpoint.",
+            "too_large": f"The request body is over {MAX_BODY_BYTES} bytes.",
+            "json_required": "Send the body as JSON with Content-Type: application/json.",
+        }
+        return jsonify({"error": messages.get(code, exc.name), "code": code}), status
+    if code == "not_found":
+        return _render(present.error("not_found", path=request.path), status=404)
+    return _render(present.error(code, detail=exc.name), status=status)
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(exc: Exception):
+    request_id = uuid.uuid4().hex
+    log.exception("request %s failed", request_id)
+    if _wants_json():
+        return jsonify({"error": "Internal server error.", "code": "internal_error", "request_id": request_id}), 500
+    return _render(present.error("internal_error", request_id=request_id), status=500)
+
+
+def main() -> None:
+    port = int(os.environ.get("PORT", "8080"))
+    debug = os.environ.get("FLASK_DEBUG", "") == "1"
+    models = get_models()
+    if not models.ready:
+        print(f"Models not loaded: {models.format.failure}. The server will answer 503 until they are.")
+    print(f"Fake News Detector on http://127.0.0.1:{port} (debugger {'on' if debug else 'off'})")
+    app.run(host="127.0.0.1", port=port, debug=debug, use_reloader=debug)
+
+
+if __name__ == "__main__":
+    main()
