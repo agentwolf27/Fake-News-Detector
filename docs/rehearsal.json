@@ -1,0 +1,98 @@
+{
+ "recorded_at": "2026-09-17T03:42:41Z",
+ "base": "http://127.0.0.1:8080",
+ "window": "1280x800",
+ "note": "claude's rehearsal: headless Chrome and the app's browser pane at 1280x800, server started after the last edit; console clean on all five pages. Re-record after Vishrut's take.",
+ "shots": [
+  {
+   "method": "GET",
+   "path": "/",
+   "body_file": null,
+   "status": 200,
+   "sha256": "b58d023703a36855c9e4ece382e9d0ddae0f9a09c7459467a8b9e0e49927797a",
+   "state": "first_load",
+   "headline": "No text scored yet",
+   "shown": []
+  },
+  {
+   "method": "GET",
+   "path": "/?sample=wire_report",
+   "body_file": null,
+   "status": 200,
+   "sha256": "7b5162c73905ac7d3cb102f0dec2b31aa8fc57a56441e5f53e8109440aac44d6",
+   "state": "verdict",
+   "headline": "Reads like real reporting",
+   "shown": [
+    "27 % fake · 73 % real",
+    "32 % fake · 68 % real",
+    "19 % fake · 81 % real"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/?sample=sensational_post",
+   "body_file": null,
+   "status": 200,
+   "sha256": "4f58c0952610f92caa95b59b775c9fdc6ae429d7bbdf1d56e0776f60d65c21e2",
+   "state": "verdict",
+   "headline": "Leans fake",
+   "shown": [
+    "63 % fake · 37 % real",
+    "58 % fake · 42 % real",
+    "70 % fake · 30 % real"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/?sample=sensational_dateline",
+   "body_file": null,
+   "status": 200,
+   "sha256": "f72ffc1f82259ed2af6b4f5ebafe69cdcd37efbeec809640373eb8cc175aea9b",
+   "state": "disagreement",
+   "headline": "The two models disagree",
+   "shown": [
+    "48 % fake · 52 % real",
+    "34 % fake · 66 % real",
+    "70 % fake · 30 % real"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/?sample=headline_only",
+   "body_file": null,
+   "status": 200,
+   "sha256": "13ce0b76c97116c734d02b8185600622448a25c3b86261dd6aebc1a886e1fd30",
+   "state": "no_signal",
+   "headline": "Too little to go on",
+   "shown": []
+  },
+  {
+   "method": "GET",
+   "path": "/static/style.css",
+   "body_file": null,
+   "status": 200,
+   "sha256": "644ee461200003250384bdcda5ce81529379b27b8bff8ef1826d717cbf750643"
+  },
+  {
+   "method": "GET",
+   "path": "/static/app.js",
+   "body_file": null,
+   "status": 200,
+   "sha256": "c1be244429c989f839fbc173ae604753fffa1fa63c1ae65f70e0bb2e3cba8008"
+  },
+  {
+   "method": "GET",
+   "path": "/api/models",
+   "body_file": null,
+   "status": 200,
+   "sha256": "58fb8d738d7166803033d6415adc5deb6ca5f2ac754f42a27fa4f2614229de3e"
+  },
+  {
+   "method": "POST",
+   "path": "/api/predict",
+   "body_file": "samples/wire_report.json",
+   "status": 200,
+   "sha256": "76b522cde7c34876a4fd14ad14b6ca70c6d993f9022c455170dc4f9de3505d86"
+  }
+ ]
+}
