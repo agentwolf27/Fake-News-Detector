@@ -1,0 +1,26 @@
+[
+ {
+  "id": "wire_report",
+  "label": "Wire-style report",
+  "file": "wire_report.json",
+  "expect": "verdict"
+ },
+ {
+  "id": "sensational_post",
+  "label": "Sensational post",
+  "file": "sensational_post.json",
+  "expect": "verdict"
+ },
+ {
+  "id": "sensational_dateline",
+  "label": "Sensational post + agency dateline",
+  "file": "sensational_dateline.json",
+  "expect": "disagreement"
+ },
+ {
+  "id": "headline_only",
+  "label": "Headline only",
+  "file": "headline_only.json",
+  "expect": "no_signal"
+ }
+]
