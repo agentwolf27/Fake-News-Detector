@@ -1,0 +1,72 @@
+{
+ "_source": "Transcribed from PLAN.md › Approach › Page (frozen 2026-09-16). Change the plan first, then this file.",
+ "always": {
+  "title": "Fake News Detector",
+  "lede": "Paste a news article. Two text models score whether its writing style resembles the fake or the real articles they were trained on.",
+  "scope": "Trained on about 1,600 labelled news articles. It scores writing style; it does not check facts.",
+  "label": "Article text",
+  "placeholder": "Paste the full article, not just the headline.",
+  "button": "Analyse",
+  "samples_intro": "Try a text written for this demo:",
+  "sample_labels": ["Wire-style report", "Sensational post", "Sensational post + agency dateline", "Headline only"],
+  "footer_api": "API: POST /api/predict · GET /api/models",
+  "footer_source": "Source on GitHub"
+ },
+ "headlines": {
+  "first_load": "No text scored yet",
+  "no_signal": "Too little to go on",
+  "unrecognised": "Too few words the models know",
+  "url_only": "Links aren't opened",
+  "disagreement": "The two models disagree",
+  "verdict": [
+   "Too close to call",
+   "Leans fake",
+   "Leans real",
+   "Reads like fake news",
+   "Reads like real reporting",
+   "Reads strongly like fake news",
+   "Reads strongly like real reporting"
+  ],
+  "error": {
+   "text_empty": "Nothing to score",
+   "too_large": "Too much text",
+   "model_unavailable": "The detector isn't available",
+   "internal_error": "Something went wrong on the server"
+  },
+  "not_found_prefix": "Nothing at "
+ },
+ "bodies": {
+  "first_load": "Paste an article or load a sample. Scores appear here.",
+  "no_signal_both": "Both models scored this within 3 points of an empty text (59\u00a0%\u00a0fake · 41\u00a0%\u00a0real), so the score says nothing about these words.",
+  "no_signal_format_only": "The format model scored this within 3 points of an empty text (66\u00a0%\u00a0fake · 34\u00a0%\u00a0real), so the score says nothing about these words.",
+  "unrecognised": "Most of this text isn't in the English news vocabulary the models learned, so there is little for them to read.",
+  "url_only": "The detector reads text only. Paste the article itself, not its address.",
+  "disagreement": "The format model reacts to agency datelines and wire-service phrasing; the content model has those removed first. A split means the styling and the wording point different ways.",
+  "text_empty": "The text box is empty."
+ },
+ "actions": {
+  "edit": "Edit the text",
+  "home": "Go to the detector",
+  "restore": "Restore your text"
+ },
+ "rows": {
+  "blend": "Blended 60/40",
+  "format": "Format model",
+  "content": "Content model",
+  "format_note": "Random forest over word patterns, including datelines and agency names.",
+  "content_note": "Logistic regression; agency names and datelines are removed first.",
+  "format_only": "Format model only — content model not loaded",
+  "content_missing": "not scored — model file not loaded",
+  "no_words": "no words it recognises"
+ },
+ "agreement": [
+  "Both models lean fake.",
+  "Both models lean real.",
+  "Neither model leans either way.",
+  "The format model leans fake; the content model has no lean.",
+  "The format model leans real; the content model has no lean.",
+  "The content model leans fake; the format model has no lean.",
+  "The content model leans real; the format model has no lean."
+ ],
+ "foot_words": "Read {n}."
+}
