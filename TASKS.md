@@ -19,9 +19,8 @@ so it is counted as uncheckable rather than quietly counted as passed.
 | # | Task | Owner | VERIFY |
 |---|------|-------|--------|
 | 8 | Save what the live server served during the take | user | `.venv/bin/python -m unittest tests.test_rehearsal` exits 0 after `scripts/rehearse.py --record` |
-| 13 | Push `dev` and the branch, open the PR into `dev` | user | Vishrut approves the push |
 | 14 | Portfolio case file and shot list follow what landed | claude | `grep -c "Too little to go on" "/Users/vish/Projects/Portfolio Website/design-system/WALKTHROUGHS.md"` prints a non-zero count |
-| 15 | Decide on CLAUDE.md, .claude/ and a LICENSE file | user | Vishrut decides |
+| 15 | Decide on CLAUDE.md, .claude/, a LICENSE file, and whether `dev` is the default branch | user | Vishrut decides |
 
 ## Done
 
@@ -37,3 +36,4 @@ so it is counted as uncheckable rather than quietly counted as passed.
 | 10 | Docker image that starts and answers | claude | `bash scripts/docker_smoke.sh` exits 0 | 2026-09-16 |
 | 11 | Mutants each fail their module | claude | `.venv/bin/python scripts/mutants.py` exits 0 | 2026-09-16 |
 | 12 | README matches what runs | claude | `grep -q "docker run --rm -p 8080:8080" README.md` exits 0 | 2026-09-16 |
+| 13 | Push `dev` and the branch, open the PR into `dev` | user | Vishrut approves the push | 2026-09-16 |
